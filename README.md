@@ -1,7 +1,11 @@
-![blend_icon](https://github.com/wjakew/blend/blob/master/readme_resources/blend_icon.png)
+ ![blend_icon](https://github.com/wjakew/blend/blob/master/readme_resources/blend_icon.png)
 # blend
 Web application for marging pdf files.
 ![blend_screenshot1](https://github.com/wjakew/blend/blob/master/readme_resources/blend_screenshot1.png)
+### Functionality:
+- Merge up to 30 files.
+- Set custom file order.
+- All processing locally, all files removed after job.
 ### Technology:
 - Java 20
 - Vaadin

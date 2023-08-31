@@ -1,3 +1,8 @@
+/**
+ * by Jakub Wawak
+ * j.wawak@usp.pl/kubawawak@gmail.com
+ * all rights reserved
+ */
 package pl.jakubwawak.blend.website_ui;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -24,11 +29,14 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
+import pl.jakubwawak.blend.maintanance.FileObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,9 +50,11 @@ public class HomeView extends VerticalLayout {
     Upload uploadComponent;
 
     Button merge_button;
-    HorizontalLayout uploadLayout;
 
-    ArrayList<InputStream> fileCollection;
+    Button clear_button;
+    VerticalLayout uploadLayout;
+
+    ArrayList<FileObject> fileCollection;
 
     /**
      * Constructor
@@ -75,7 +85,7 @@ public class HomeView extends VerticalLayout {
         uploadComponent.setAcceptedFileTypes("application/pdf", ".pdf");
         uploadComponent.setMaxFiles(10);
 
-        int maxFileSizeInBytes = 20 * 1024 * 1024; // 10MB
+        int maxFileSizeInBytes = 30 * 1024 * 1024; // 10MB
         uploadComponent.setMaxFileSize(maxFileSizeInBytes);
 
         uploadComponent.addSucceededListener(event -> {
@@ -90,7 +100,7 @@ public class HomeView extends VerticalLayout {
 
             // Do something with the file data
             // processFile(fileData, fileName, contentLength, mimeType);
-            fileCollection.add(fileData);
+            fileCollection.add(new FileObject(fileName,fileData, LocalDateTime.now(ZoneId.of("Europe/Warsaw"))));
             Notification.show("Uploaded "+fileName+"!");
 
         });
@@ -104,22 +114,30 @@ public class HomeView extends VerticalLayout {
         });
 
         merge_button = new Button("Merge!",this::mergebutton_action);
-        merge_button.setWidth("40%");merge_button.setHeight("10%");
+        merge_button.setWidth("100%");merge_button.setHeight("20%");
         merge_button.getStyle().set("color","black");
         merge_button.getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
         merge_button.setIcon(VaadinIcon.FILE.create());
         merge_button.getStyle().set("border-radius","25px");
 
-        uploadLayout = new HorizontalLayout();
+        clear_button = new Button("Clear Files",this::clearbutton_action);
+        clear_button.setWidth("100%");clear_button.setHeight("20%");
+        clear_button.getStyle().set("color","black");
+        clear_button.getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
+        clear_button.setIcon(VaadinIcon.TRASH.create());
+        clear_button.getStyle().set("border-radius","25px");
+
+        uploadLayout = new VerticalLayout();
 
         uploadLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        uploadLayout.setWidth("100%");
-        uploadLayout.setHeight("100%");
+        uploadLayout.setWidth("70%");
+        uploadLayout.setHeight("60%");
         uploadLayout.getStyle().set("text-align", "center");
         uploadLayout.getStyle().set("border-radius","25px");
         uploadLayout.getStyle().set("margin","75px");
-        uploadLayout.getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
+        uploadLayout.getStyle().set("background-image","linear-gradient(#FFFFFF,#e38ad9)");
         uploadLayout.getStyle().set("--lumo-font-family","Monospace");
+        uploadLayout.add(clear_button,uploadComponent,merge_button);
 
     }
 
@@ -134,33 +152,17 @@ public class HomeView extends VerticalLayout {
             return HomeView.class.getClassLoader().getResourceAsStream("images/blend_icon.png");
         });
         Image logo = new Image(res,"bear_in_mind logo");
-        logo.setHeight("512px");
-        logo.setWidth("512px");
+        logo.setHeight("10rem");
+        logo.setWidth("10rem");
 
-        HorizontalLayout centerLayout = new HorizontalLayout();
+        VerticalLayout logoLayout = new VerticalLayout(logo);
+        logoLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        logoLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        logoLayout.setWidth("100%");
 
-        uploadLayout.add(uploadComponent);
-
-        VerticalLayout rightlayout = new VerticalLayout();
-
-        rightlayout.setSizeFull();
-        rightlayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        rightlayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        rightlayout.getStyle().set("text-align", "center");
-        rightlayout.getStyle().set("--lumo-font-family","Monospace");
-        rightlayout.add(uploadLayout,merge_button);
-
-        centerLayout.add(logo,rightlayout);
-
-        centerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        centerLayout.setWidth("512px");
-        centerLayout.setHeight("512px");
-        centerLayout.getStyle().set("text-align", "center");
-        centerLayout.getStyle().set("margin","75px");
-        centerLayout.getStyle().set("--lumo-font-family","Monospace");
-
-        add(new H6("blend by Jakub Wawak / "+ BlendApplication.version+" / "+BlendApplication.build));
-        add(centerLayout);
+        add(logoLayout);
+        add(new HorizontalLayout(new H6("blend by Jakub Wawak / "+ BlendApplication.version+" / "+BlendApplication.build)));
+        add(uploadLayout);
     }
 
     /**
@@ -169,81 +171,21 @@ public class HomeView extends VerticalLayout {
      */
     private void mergebutton_action(ClickEvent ex){
         if ( fileCollection.size() > 0 ){
-            try{
-                List<InputStream> inputPdfList = fileCollection;
-                String outputFileName = "blend_merge"+BlendApplication.globalFileIndex+".pdf";
-                OutputStream outputStream = new FileOutputStream(outputFileName);
-                mergePdfFiles(inputPdfList,outputStream);
-                File fileToDownload = new File(outputFileName);
-                if ( fileToDownload.exists()){
-                    FileDownloaderComponent fdc = new FileDownloaderComponent(fileToDownload);
-                    add(fdc.dialog);
-                    fdc.dialog.open();
-                }
-                else{
-                    Notification.show("Error - cannot download file!");
-                }
-            }catch(Exception e){
-                System.out.println(e.toString());
-                Notification.show("Error ("+e.toString()+")");
-            }
-            BlendApplication.globalFileIndex++;
+            MergeOptionsWindow mow = new MergeOptionsWindow(fileCollection);
+            add(mow.main_dialog);
+            mow.main_dialog.open();
         }
         else{
-            Notification.show("Number of files is 0!");
+            Notification.show("Your file list is empty!");
         }
     }
 
-    void mergePdfFiles(List<InputStream> inputPdfList,
-                              OutputStream outputStream) throws Exception{
-        //Create document and pdfReader objects.
-        Document document = new Document();
-        List<PdfReader> readers =
-                new ArrayList<PdfReader>();
-        int totalPages = 0;
-
-        //Create pdf Iterator object using inputPdfList.
-        Iterator<InputStream> pdfIterator =
-                inputPdfList.iterator();
-
-        // Create reader list for the input pdf files.
-        while (pdfIterator.hasNext()) {
-            InputStream pdf = pdfIterator.next();
-            PdfReader pdfReader = new PdfReader(pdf);
-            readers.add(pdfReader);
-            totalPages = totalPages + pdfReader.getNumberOfPages();
-        }
-
-        // Create writer for the outputStream
-        PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-
-        //Open document.
-        document.open();
-
-        //Contain the pdf data.
-        PdfContentByte pageContentByte = writer.getDirectContent();
-
-        PdfImportedPage pdfImportedPage;
-        int currentPdfReaderPage = 1;
-        Iterator<PdfReader> iteratorPDFReader = readers.iterator();
-
-        // Iterate and process the reader list.
-        while (iteratorPDFReader.hasNext()) {
-            PdfReader pdfReader = iteratorPDFReader.next();
-            //Create page and add content.
-            while (currentPdfReaderPage <= pdfReader.getNumberOfPages()) {
-                document.newPage();
-                pdfImportedPage = writer.getImportedPage(
-                        pdfReader,currentPdfReaderPage);
-                pageContentByte.addTemplate(pdfImportedPage, 0, 0);
-                currentPdfReaderPage++;
-            }
-            currentPdfReaderPage = 1;
-        }
-        //Close document and outputStream.
-        outputStream.flush();
-        document.close();
-        outputStream.close();
-        Notification.show("Pdf files merged successfully.");
+    /**
+     * clearbutton_action
+     * @param ex
+     */
+    private void clearbutton_action(ClickEvent ex){
+        uploadComponent.clearFileList();
+        Notification.show("File list cleared!");
     }
 }

@@ -13,17 +13,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableVaadin({"pl.jakubwawak"})
 public class BlendApplication {
 
-	public static String version = "v.1.0.0";
-	public static String build = "BL24082023REV01";
-
-	public static int globalFileIndex;
+	public static String version = "v.1.1.0";
+	public static String build = "BL31082023REV01";
 
 	/**
 	 * Main application function
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		globalFileIndex = 0;
 		showHeader();
 		SpringApplication.run(BlendApplication.class, args);
 	}
