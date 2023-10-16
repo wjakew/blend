@@ -13,8 +13,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableVaadin({"pl.jakubwawak"})
 public class BlendApplication {
 
-	public static String version = "v.1.1.0";
-	public static String build = "BL31082023REV01";
+	public static String version = "v.1.2.0";
+	public static String build = "BL16102023REV01";
+
+	public static String hexMainColor = "#6880e7";
+	public static String hexSecondaryColor = "#56b6d5";
 
 	/**
 	 * Main application function

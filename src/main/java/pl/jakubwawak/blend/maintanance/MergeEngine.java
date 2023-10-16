@@ -67,6 +67,8 @@ public class MergeEngine {
                        OutputStream outputStream) throws Exception{
         //Create document and pdfReader objects.
         Document document = new Document();
+        document.addAuthor("blend by Jakub Wawak");
+        document.addCreator("blend by Jakub Wawak");
         List<PdfReader> readers =
                 new ArrayList<PdfReader>();
         int totalPages = 0;

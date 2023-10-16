@@ -6,6 +6,7 @@
 package pl.jakubwawak.blend.website_ui;
 
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
@@ -24,27 +25,16 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.Lumo;
 import pl.jakubwawak.blend.BlendApplication;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfImportedPage;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfWriter;
 import pl.jakubwawak.blend.maintanance.FileObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-@PageTitle("blend by Jakub Wawak")
-@Route(value = "blend")
-@RouteAlias(value = "/")
-public class HomeView extends VerticalLayout {
+@PageTitle("merge by Jakub Wawak")
+@Route(value = "merge")
+public class MergeView extends VerticalLayout {
 
     MultiFileMemoryBuffer buffer;
     Upload uploadComponent;
@@ -59,7 +49,7 @@ public class HomeView extends VerticalLayout {
     /**
      * Constructor
      */
-    public HomeView(){
+    public MergeView(){
         this.getElement().setAttribute("theme", Lumo.LIGHT);
         fileCollection = new ArrayList<>();
 
@@ -69,7 +59,7 @@ public class HomeView extends VerticalLayout {
         setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         getStyle().set("text-align", "center");
-        getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
+        getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         getStyle().set("--lumo-font-family","Monospace");
     }
 
@@ -83,7 +73,7 @@ public class HomeView extends VerticalLayout {
         uploadComponent.setDropAllowed(true);
         uploadComponent.setAutoUpload(true);
         uploadComponent.setAcceptedFileTypes("application/pdf", ".pdf");
-        uploadComponent.setMaxFiles(10);
+        uploadComponent.setMaxFiles(30);
 
         int maxFileSizeInBytes = 30 * 1024 * 1024; // 10MB
         uploadComponent.setMaxFileSize(maxFileSizeInBytes);
@@ -116,14 +106,14 @@ public class HomeView extends VerticalLayout {
         merge_button = new Button("Merge!",this::mergebutton_action);
         merge_button.setWidth("100%");merge_button.setHeight("20%");
         merge_button.getStyle().set("color","black");
-        merge_button.getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
+        merge_button.getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         merge_button.setIcon(VaadinIcon.FILE.create());
         merge_button.getStyle().set("border-radius","25px");
 
         clear_button = new Button("Clear Files",this::clearbutton_action);
         clear_button.setWidth("100%");clear_button.setHeight("20%");
         clear_button.getStyle().set("color","black");
-        clear_button.getStyle().set("background-image","linear-gradient(#e38ad9, #FFFFFF)");
+        clear_button.getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         clear_button.setIcon(VaadinIcon.TRASH.create());
         clear_button.getStyle().set("border-radius","25px");
 
@@ -135,7 +125,7 @@ public class HomeView extends VerticalLayout {
         uploadLayout.getStyle().set("text-align", "center");
         uploadLayout.getStyle().set("border-radius","25px");
         uploadLayout.getStyle().set("margin","75px");
-        uploadLayout.getStyle().set("background-image","linear-gradient(#FFFFFF,#e38ad9)");
+        uploadLayout.getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         uploadLayout.getStyle().set("--lumo-font-family","Monospace");
         uploadLayout.add(clear_button,uploadComponent,merge_button);
 
@@ -149,11 +139,15 @@ public class HomeView extends VerticalLayout {
         prepareComponents();
         this.removeAll();
         StreamResource res = new StreamResource("blend_icon.png", () -> {
-            return HomeView.class.getClassLoader().getResourceAsStream("images/blend_icon.png");
+            return MergeView.class.getClassLoader().getResourceAsStream("images/blend_icon.png");
         });
         Image logo = new Image(res,"bear_in_mind logo");
         logo.setHeight("10rem");
         logo.setWidth("10rem");
+
+        logo.addClickListener(e->{
+            UI.getCurrent().navigate("/blend");
+        });
 
         VerticalLayout logoLayout = new VerticalLayout(logo);
         logoLayout.setJustifyContentMode(JustifyContentMode.CENTER);
