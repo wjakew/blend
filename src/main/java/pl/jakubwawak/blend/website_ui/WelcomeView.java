@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -49,13 +50,11 @@ public class WelcomeView extends VerticalLayout {
      */
     void prepareComponents(){
         merge_button = new Button("Merge PDFs",VaadinIcon.FILE_PROCESS.create(),this::mergebutton_action);
-        merge_button.setWidth("80%");merge_button.setHeight("40%");
         merge_button.getStyle().set("color","black");
         merge_button.getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         merge_button.getStyle().set("border-radius","25px");
 
         jpgtopdf_button = new Button("JPG to PDF",VaadinIcon.PICTURE.create(),this::convertbutton_action);
-        jpgtopdf_button.setWidth("80%");jpgtopdf_button.setHeight("40%");
         jpgtopdf_button.getStyle().set("color","black");
         jpgtopdf_button.getStyle().set("background-image","linear-gradient("+BlendApplication.hexMainColor+", "+BlendApplication.hexSecondaryColor+")");
         jpgtopdf_button.getStyle().set("border-radius","25px");
@@ -80,10 +79,14 @@ public class WelcomeView extends VerticalLayout {
         logoLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         logoLayout.setWidth("100%");
 
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.add(merge_button,jpgtopdf_button);
+        buttonLayout.setAlignItems(Alignment.CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER);
+
         add(logoLayout);
         add(new HorizontalLayout(new H6("blend by Jakub Wawak / "+ BlendApplication.version+" / "+BlendApplication.build)));
-        add(merge_button);
-        add(jpgtopdf_button);
+        add(buttonLayout);
     }
 
     /**
@@ -100,8 +103,9 @@ public class WelcomeView extends VerticalLayout {
      * @param ex
      */
     private void convertbutton_action(ClickEvent ex){
-        jpgtopdf_button.getUI().ifPresent(ui ->
-                ui.navigate("/jpgconvert"));
+        //jpgtopdf_button.getUI().ifPresent(ui ->
+        //       ui.navigate("/jpgconvert"));
+        Notification.show("Comming soon!");
     }
 
 }
